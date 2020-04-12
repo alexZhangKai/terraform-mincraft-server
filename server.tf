@@ -35,21 +35,33 @@ resource "google_compute_instance" "mc-server" {
   }
 
   metadata_startup_script = <<SCRIPT
-  sudo apt-get update -y
-  sudo apt-get install -y \
+  if [ ! -d /home/minecraft ]; then
+    echo "installing minecraft server"
+    sudo apt-get update -y
+    sudo apt-get install -y \
       screen \
       default-jre-headless
-  sudo mkdir -p /home/minecraft
-  sudo mkfs.ext4 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/disk/by-id/google-mc-data
-  sudo mount -o discard,defaults /dev/disk/by-id/google-mc-data /home/minecraft
-  cd /home/minecraft
-  sudo su
-  wget https://launcher.mojang.com/v1/objects/bb2b6b1aefcd70dfd1892149ac3a215f6c636b07/server.jar
-  screen -d -m -S mcs java -Xms1G -Xmx3G -d64 -jar server.jar nogui
-  while [ ! -f eula.txt ]; do sleep 1; done
-  sed -i.bak "s/false/true/g" eula.txt
-  screen -d -m -S mcs java -Xms1G -Xmx3G -d64 -jar server.jar nogui
-  echo "Server Starts"
+    sudo mkdir -p /home/minecraft
+    sudo mkfs.ext4 -F -E \ 
+      lazy_itable_init=0, \
+      lazy_journal_init=0, \
+      discard /dev/disk/by-id/google-mc-data
+    sudo mount -o discard, \
+      defaults /dev/disk/by-id/google-mc-data /home/minecraft
+    cd /home/minecraft
+    sudo su
+    wget https://launcher.mojang.com/v1/objects/bb2b6b1aefcd70dfd1892149ac3a215f6c636b07/server.jar
+    screen -d -m -S mcs java -Xms1G -Xmx3G -d64 -jar server.jar nogui
+    while [ ! -f eula.txt ]; do sleep 1; done
+    sed -i.bak "s/false/true/g" eula.txt
+    screen -d -m -S mcs java -Xms1G -Xmx3G -d64 -jar server.jar nogui
+    echo "minecraft server is now running"
+  else 
+    echo "restarting minecraft server"
+    sudo mount /dev/disk/by-id/google-minecraft-disk /home/minecraft
+    cd /home/minecraft
+    screen -d -m -S mcs java -Xms1G -Xmx3G -d64 -jar server.jar nogui
+  fi
   SCRIPT
 
   metadata = {
