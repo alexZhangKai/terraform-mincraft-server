@@ -8,6 +8,10 @@ const Compute = require('@google-cloud/compute')
  */
 exports.stopServer = async (req, res) => {
   let command = req.body.command;
+  if(!command) {
+    command = JSON.parse(req.body.toString()).command;
+  }
+  console.info(command);
   const compute = new Compute();
   switch(command){
     case "stop":
