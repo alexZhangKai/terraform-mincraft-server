@@ -20,7 +20,8 @@ resource "google_compute_instance" "mc-server" {
   }
 
   network_interface {
-    network = "default"
+    network = google_compute_network.mc-network.name
+    subnetwork = google_compute_subnetwork.mc-subnet.name
 
     access_config {
       nat_ip = google_compute_address.mc-server-static.address
