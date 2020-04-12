@@ -13,7 +13,7 @@ exports.stopServer = async (req, res) => {
     case "stop":
       const [stopOperation] = await compute
         .zone("australia-southeast1-b")
-        .vm("mc-server")
+        .vm("tf-mc-server")
         .stop();
       await stopOperation.promise();
       res.status(200).send("server stopped");
@@ -21,7 +21,7 @@ exports.stopServer = async (req, res) => {
     case "start":
       const [startOperation] = await compute
         .zone("australia-southeast1-b")
-        .vm("mc-server")
+        .vm("tf-mc-server")
         .start();
       await startOperation.promise();
       res.status(200).send("server started");
